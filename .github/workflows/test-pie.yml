@@ -86,7 +86,7 @@ jobs:
                   "source": {
                     "type": "git",
                     "url": "https://github.com/jduo/valkey-glide-php.git",
-                    "reference": "${{ github.head_ref || github.ref_name }}"
+                    "reference": "${{ github.sha }}"
                   },
                   "type": "php-ext",
                   "php-ext": {
