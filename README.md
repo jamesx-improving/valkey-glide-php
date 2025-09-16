@@ -104,6 +104,7 @@ source "$HOME/.cargo/env"
 ```bash
 brew install protobuf
 brew install protobuf-c
+brew link protobuf
 # Verify installation
 protoc --version
 ```
@@ -142,8 +143,8 @@ protoc --version
 4. Build the extension:
     ```bash
     phpize
-    ./configure --enable-valkey-glide
-    make build-modules-pre
+    ./configure
+    make
     make install
     ```
 
@@ -166,6 +167,9 @@ protoc --version
     ```
     make test
     ```
+
+Note: For fresh builds and installations, you may encounter permission issues. To resolve them, either adjust directory permissions or run the command with `sudo`
+
 ## Basic Examples
 
 ### Standalone Valkey:

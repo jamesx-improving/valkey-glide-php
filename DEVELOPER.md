@@ -69,7 +69,7 @@ Continue with **Install protobuf compiler** and **Install `ziglang` and `zigbuil
 
 ```bash
 brew update
-brew install php git gcc make autoconf automake libtool pkgconfig protobuf@3 openssl
+brew install php git gcc make autoconf automake libtool pkgconfig protobuf openssl
 curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 source "$HOME/.cargo/env"
 # Check that the Rust compiler is installed
@@ -81,12 +81,13 @@ rustc --version
 To install protobuf for MacOS, run:
 
 ```bash
-brew install protobuf@3
+brew install protobuf
+brew link protobuf
 # Verify the Protobuf compiler installation
 protoc --version
 
 # If protoc is not found or does not work correctly, update the PATH
-echo 'export PATH="/opt/homebrew/opt/protobuf@3/bin:$PATH"' >> /Users/$USER/.bash_profile
+echo 'export PATH="/opt/homebrew/opt/protobuf/bin:$PATH"' >> /Users/$USER/.bash_profile
 source /Users/$USER/.bash_profile
 protoc --version
 ```
@@ -121,7 +122,7 @@ Before starting this step, make sure you've installed all software requirements.
     cd valkey-glide-php
     ```
 
-1a. Initialize submodules (if not cloned with --recurse-submodules):
+    1a. Initialize submodules (if not cloned with --recurse-submodules):
 
     ```bash
     git submodule update --init --recursive
@@ -148,15 +149,12 @@ Before starting this step, make sure you've installed all software requirements.
 
     ```bash
     # Configure with Valkey Glide support enabled
-    ./configure --enable-valkey-glide
+    ./configure
     ```
 
 5. Build the extension:
 
     ```bash
-    # Pre-build step to prepare modules
-    make generate-bindings generate-proto
-    
     # Build the extension
     make
     ```
