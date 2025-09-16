@@ -21,7 +21,7 @@ jobs:
       host-matrix-output: ${{ steps.get-matrices.outputs.host-matrix-output }}
       version-matrix-output: ${{ steps.get-matrices.outputs.version-matrix-output }}
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
       - id: get-matrices
@@ -44,7 +44,7 @@ jobs:
     runs-on: ${{ matrix.host.RUNNER }}
 
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
         with:
           submodules: recursive
 
