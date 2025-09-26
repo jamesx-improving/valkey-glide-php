@@ -23,6 +23,9 @@ CFLAGS += -Werror
 # Force header generation before any compilation
 $(shared_objects_valkey_glide): include/glide_bindings.h cluster_scan_cursor_arginfo.h valkey_glide_arginfo.h valkey_glide_cluster_arginfo.h logger_arginfo.h src/client_constructor_mock_arginfo.h valkey-glide/ffi/target/release/libglide_ffi.a
 
+# Ensure protobuf files exist before compiling object files that need them
+src/command_request.lo src/connection_request.lo src/response.lo: include/glide_bindings.h
+
 # Backward compatibility alias
 build-modules-pre: include/glide_bindings.h cluster_scan_cursor_arginfo.h valkey_glide_arginfo.h valkey_glide_cluster_arginfo.h logger_arginfo.h src/client_constructor_mock_arginfo.h valkey-glide/ffi/target/release/libglide_ffi.a
 
@@ -68,8 +71,17 @@ src/client_constructor_mock_arginfo.h: src/client_constructor_mock.stub.php
 
 valkey-glide/ffi/target/release/libglide_ffi.a: ensure-submodules
 	@echo "=== BUILDING FFI LIBRARY ==="
-	@if [ -d valkey-glide/ffi ]; then \
-		cd valkey-glide/ffi && cargo build --release && cd ../..; \
+	@if [ ! -f valkey-glide/ffi/target/release/libglide_ffi.a ]; then \
+		echo "FFI library not found, building with cargo"; \
+		if command -v sccache >/dev/null 2>&1; then \
+			export RUSTC_WRAPPER=sccache; \
+			echo "Using sccache for Rust compilation"; \
+		fi && \
+		if [ -d valkey-glide/ffi ]; then \
+			cd valkey-glide/ffi && CARGO_BUILD_JOBS=$$(nproc 2>/dev/null || sysctl -n hw.ncpu 2>/dev/null || echo "4") cargo build --release && cd ../..; \
+		fi; \
+	else \
+		echo "FFI library already exists, skipping cargo build"; \
 	fi
 
 ensure-submodules:
@@ -106,21 +118,13 @@ ensure-submodules:
 	fi
 	@echo "Submodules ready"
 
-include/glide_bindings.h: ensure-submodules
+include/glide_bindings.h: valkey-glide/ffi/target/release/libglide_ffi.a ensure-submodules
 	@echo "=== GENERATING HEADER FILE ==="
 	@echo "DEBUG: Starting include/glide_bindings.h generation"
 	@echo "DEBUG: Current directory: $$(pwd)"
 	@echo "DEBUG: valkey-glide directory exists: $$([ -d valkey-glide ] && echo YES || echo NO)"
 	@echo "DEBUG: valkey-glide/glide-core/src/protobuf exists: $$([ -d valkey-glide/glide-core/src/protobuf ] && echo YES || echo NO)"
 	@python3 utils/remove_optional_from_proto.py || true
-	@echo "=== Setting up Rust environment ==="
-	@export PATH="$$HOME/.cargo/bin:$$PATH" && \
-	if [ -f "$$HOME/.cargo/env" ]; then \
-		. "$$HOME/.cargo/env"; \
-	fi && \
-	if [ -d valkey-glide/ffi ]; then \
-		cd valkey-glide/ffi && cargo build --release && cd ../..; \
-	fi
 	@mkdir -p include
 	@export PATH="$$HOME/.cargo/bin:$$PATH" && \
 	if [ -f "$$HOME/.cargo/env" ]; then \
