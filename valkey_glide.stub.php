@@ -197,6 +197,18 @@ class ValkeyGlide
            */
     public const  READ_FROM_AZ_AFFINITY_REPLICAS_AND_PRIMARY = 3;
 
+    /**
+     * @var string
+     * COPY command option key for replacing existing destination key
+     */
+    public const COPY_REPLACE = 'REPLACE';
+
+    /**
+     * @var string  
+     * COPY command option key for specifying destination database
+     */
+    public const COPY_DB = 'DB';
+
 
     /**
      *
@@ -499,8 +511,13 @@ class ValkeyGlide
      * @param array  $options An array with modifiers on how COPY should operate.
      *                        <code>
      *                        $options = [
+     *                            ValkeyGlide::COPY_REPLACE => true|false # Whether to replace an existing key.
+     *                            ValkeyGlide::COPY_DB => int             # Copy key to specific database.
+     *                        ];
+     *                        // Or using string keys:
+     *                        $options = [
      *                            'REPLACE' => true|false # Whether to replace an existing key.
-     *                            'DB' => int             # Copy key to specific db.
+     *                            'DB' => int             # Copy key to specific database.
      *                        ];
      *                        </code>
      *
@@ -518,9 +535,9 @@ class ValkeyGlide
      *       ->exec();
      *
      * var_dump($valkey_glide->copy('source1', 'newkey'));
-     * var_dump($valkey_glide->copy('source1', 'newkey', ['db' => 1]));
+     * var_dump($valkey_glide->copy('source1', 'newkey', [ValkeyGlide::COPY_DB => 1]));
      * var_dump($valkey_glide->copy('source1', 'exists'));
-     * var_dump($valkey_glide->copy('source1', 'exists', ['REPLACE' => true]));
+     * var_dump($valkey_glide->copy('source1', 'exists', [ValkeyGlide::COPY_REPLACE => true]));
      */
     public function copy(string $src, string $dst, ?array $options = null): ValkeyGlide|bool;
 
@@ -2561,7 +2578,7 @@ class ValkeyGlide
      *
      * @example $valkey_glide->select(1);
      */
-// public function select(int $db): ValkeyGlide|bool;
+    public function select(int $db): ValkeyGlide|bool;
 
     /**
      * Create or set a ValkeyGlide STRING key to a value.
